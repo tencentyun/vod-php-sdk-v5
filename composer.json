@@ -1,0 +1,26 @@
+{
+    "name": "qcloud/vod-sdk-v5",
+    "description": "VOD SDK For PHP",
+    "type": "library",
+    "authors": [
+        {
+            "name": "xujianguo",
+            "email": "450846733@qq.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/tencentyun/vod-php-sdk-v5/issues",
+        "source": "https://github.com/tencentyun/vod-php-sdk-v5"
+    },
+    "license": "MIT",
+    "require": {
+        "php": ">=5.3.0",
+        "qcloud/cos-sdk-v5": "v1.1.1",
+        "tencentyun-api/qcloudapi-sdk-php": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Vod\\": "src/Vod/"
+        }
+    }
+}
