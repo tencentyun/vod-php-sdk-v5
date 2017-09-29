@@ -10,7 +10,7 @@
 ```json
 {
     "require": {
-        "qcloud/vod-sdk-v5": "v1.0.0"
+        "qcloud/vod-sdk-v5": "v1.2.1"
     }
 }
 ```
