@@ -105,7 +105,7 @@ class VodApi {
         try {
             $msg = "UploadCos req package:" . json_encode($package);
             vodLog(self::$logPath, $msg, $id);
-            $rsp = $cosClient->upload($package['bucket'], $package['dst'], file_get_contents($package['src']));
+            $rsp = $cosClient->upload($package['bucket'], $package['dst'], fopen(($package['src']),'r+'));
             $msg = "UploadCos|requestId:" . $rsp["RequestId"];
             vodLog(self::$logPath, $msg, $id);
         } catch (\Exception $e) {
