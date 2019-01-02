@@ -10,59 +10,46 @@
 ```json
 {
     "require": {
-        "qcloud/vod-sdk-v5": "v1.2.1"
+        "qcloud/vod-sdk-v5": "v2.1.0"
     }
 }
 ```
 * 调用示例
 
 ```php
-<?php
 require 'vendor/autoload.php';
 
-use Vod\VodApi;
+use Vod\VodUploadClient;
+use Vod\Model\VodUploadRequest;
 
-VodApi::initConf("your secretId", "your secretKey");
-
-$result = VodApi::upload(
-    array (
-        'videoPath' => './test/Wildlife.wmv',
-    ),
-    array (
-        'videoName' => 'WildAnimals',
-//        'procedure' => 'myProcedure',
-//        'sourceContext' => 'test',
-    )
-);
-echo "upload to vod result: " . json_encode($result) . "\n";
+$client = new VodUploadClient("your secretId", "your secretKey");
+$req = new VodUploadRequest();
+$req->MediaFilePath = "the path to media file";
+$req->CoverFilePath = "the path to cover file";
+$rsp = $client->upload("ap-guangzhou", $req);
+echo "FileId => ". $rsp->FileId . "\n";
+echo "MediaUrl -> ". $rsp->MediaUrl . "\n";
+echo "CoverUrl -> ". $rsp->CoverUrl . "\n";
 ```
-上传成功后将获取文件的播放地址和 fileid
+上传成功后将获取文件的播放地址和 FileId
 
-### Without Composer
+### 通过源码包安装
 
-* 复制src文件下的源码和test/non-composer文件的cos-sdk-v5、qcloudapi-sdk-php到同级目录
+* 前往 [Github 代码托管地址](https://github.com/tencentyun/vod-php-sdk-v5/raw/master/packages/vod-sdk.zip) 下载源码压缩包并解压到项目当中
 * 调用示例
 ```php
-<?php
-require './cos-sdk-v5/cos-autoloader.php';
-require './qcloudapi-sdk-php/src/QcloudApi/QcloudApi.php';
-require './src/Vod/VodApi.php';
-require './src/Vod/Conf.php';
+require 'vod-sdk-v5/autoload.php';
 
-use Vod\VodApi;
+use Vod\VodUploadClient;
+use Vod\Model\VodUploadRequest;
 
-VodApi::initConf("your secretId", "your secretKey");
-
-$result = VodApi::upload(
-    array (
-        'videoPath' => '../Wildlife.wmv',
-    ),
-    array (
-        'videoName' => 'WildAnimals',
-//        'procedure' => 'myProcedure',
-//        'sourceContext' => 'test',
-    )
-);
-echo "upload to vod result: " . json_encode($result) . "\n";
+$client = new VodUploadClient("your secretId", "your secretKey");
+$req = new VodUploadRequest();
+$req->MediaFilePath = "the path to media file";
+$req->CoverFilePath = "the path to cover file";
+$rsp = $client->upload("ap-guangzhou", $req);
+echo "FileId => ". $rsp->FileId . "\n";
+echo "MediaUrl -> ". $rsp->MediaUrl . "\n";
+echo "CoverUrl -> ". $rsp->CoverUrl . "\n";
 ```
-上传成功后将获取文件的播放地址和 fileid
+上传成功后将获取文件的播放地址和 FileId
