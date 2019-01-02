@@ -52,7 +52,6 @@ $client = new VodUploadClient("your secretId", "your secretKey");
 $req = new VodUploadRequest();
 $req->MediaFilePath = "the path to media file";
 $req->CoverFilePath = "the path to cover file";
-$rsp = $client->upload("ap-guangzhou", $req);
 try {
     $rsp = $client->upload("ap-guangzhou", $req);
     echo "FileId => ". $rsp->FileId . "\n";
