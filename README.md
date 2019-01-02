@@ -4,13 +4,13 @@
 
 ## 使用方式
 
-### With Composer
+### Composer
 * 引入依赖
 
 ```json
 {
     "require": {
-        "qcloud/vod-sdk-v5": "v2.1.0"
+        "qcloud/vod-sdk-v5": "v2.2.0"
     }
 }
 ```
@@ -26,10 +26,15 @@ $client = new VodUploadClient("your secretId", "your secretKey");
 $req = new VodUploadRequest();
 $req->MediaFilePath = "the path to media file";
 $req->CoverFilePath = "the path to cover file";
-$rsp = $client->upload("ap-guangzhou", $req);
-echo "FileId => ". $rsp->FileId . "\n";
-echo "MediaUrl -> ". $rsp->MediaUrl . "\n";
-echo "CoverUrl -> ". $rsp->CoverUrl . "\n";
+try {
+    $rsp = $client->upload("ap-guangzhou", $req);
+    echo "FileId => ". $rsp->FileId . "\n";
+    echo "MediaUrl -> ". $rsp->MediaUrl . "\n";
+    echo "CoverUrl -> ". $rsp->CoverUrl . "\n";
+} catch (Exception $e) {
+    // 处理上传异常
+    echo $e;
+}
 ```
 上传成功后将获取文件的播放地址和 FileId
 
@@ -48,8 +53,14 @@ $req = new VodUploadRequest();
 $req->MediaFilePath = "the path to media file";
 $req->CoverFilePath = "the path to cover file";
 $rsp = $client->upload("ap-guangzhou", $req);
-echo "FileId => ". $rsp->FileId . "\n";
-echo "MediaUrl -> ". $rsp->MediaUrl . "\n";
-echo "CoverUrl -> ". $rsp->CoverUrl . "\n";
+try {
+    $rsp = $client->upload("ap-guangzhou", $req);
+    echo "FileId => ". $rsp->FileId . "\n";
+    echo "MediaUrl -> ". $rsp->MediaUrl . "\n";
+    echo "CoverUrl -> ". $rsp->CoverUrl . "\n";
+} catch (Exception $e) {
+    // 处理上传异常
+    echo $e;
+}
 ```
 上传成功后将获取文件的播放地址和 FileId
