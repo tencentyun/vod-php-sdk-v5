@@ -33,16 +33,19 @@ class VodUploadClient
 
     private $secretKey;
 
+    private $token;
+
     private $ignoreCheck;
 
     private $retryTime;
 
     private $logPath;
 
-    public function __construct($secretId, $secretKey)
+    public function __construct($secretId, $secretKey, $token = null)
     {
         $this->secretId = $secretId;
         $this->secretKey = $secretKey;
+        $this->token = $token;
         $this->ignoreCheck = false;
         $this->retryTime = 3;
         $this->logPath = './vod_upload.log';
@@ -60,7 +63,7 @@ class VodUploadClient
         if (!$this->ignoreCheck) {
             $this->prefixCheckAndSetDefaultVal($region, $uploadRequest);
         }
-        $credential = new Credential($this->secretId, $this->secretKey);
+        $credential = new Credential($this->secretId, $this->secretKey, $this->token);
         $vodClient = new VodClient($credential, $region);
 
         $this->log("INFO", "Upload Request = ".$uploadRequest->toJsonString());
@@ -248,6 +251,22 @@ class VodUploadClient
     public function setSecretKey($secretKey)
     {
         $this->secretKey = $secretKey;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getToken()
+    {
+        return $this->token;
+    }
+
+    /**
+     * @param mixed $token
+     */
+    public function setToken($token)
+    {
+        $this->token = $token;
     }
 
     /**

@@ -16,6 +16,8 @@ class VodUploadClientTest extends TestCase
 {
     private function getVodUploadClient() {
         $client = new VodUploadClient("your secretId", "your secretKey");
+        // set credential token if necessary
+        // $client = new VodUploadClient("your secretId", "your secretKey", "your token");
         return $client;
     }
 
