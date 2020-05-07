@@ -69,7 +69,7 @@ class VodUploadClientTest extends TestCase
 
     public function testInvalidMediaType() {
         $this->expectException(TencentCloudSDKException::class);
-        $this->expectExceptionMessage("invalid video type");
+        $this->expectExceptionMessage("invalid media type");
         $client = $this->getVodUploadClient();
         $req = new VodUploadRequest();
         $req->MediaFilePath = "test/Wildlife.mp4";
