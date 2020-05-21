@@ -10,8 +10,12 @@ namespace Vod;
 use Qcloud\Cos\Client;
 use TencentCloud\Common\Credential;
 use TencentCloud\Common\Exception\TencentCloudSDKException;
+use TencentCloud\Common\Profile\ClientProfile;
+use TencentCloud\Common\Profile\HttpProfile;
 use TencentCloud\Vod\V20180717\Models\ApplyUploadRequest;
 use TencentCloud\Vod\V20180717\Models\CommitUploadRequest;
+use TencentCloud\Vod\V20180717\Models\ParseStreamingManifestRequest;
+use TencentCloud\Vod\V20180717\Models\ParseStreamingManifestResponse;
 use TencentCloud\Vod\V20180717\VodClient;
 use Vod\Common\FileUtil;
 use Vod\Exception\VodClientException as VodClientException;
@@ -41,6 +45,8 @@ class VodUploadClient
 
     private $logPath;
 
+    private $httpProfile;
+
     public function __construct($secretId, $secretKey, $token = null)
     {
         $this->secretId = $secretId;
@@ -60,11 +66,30 @@ class VodUploadClient
      * @return VodUploadResponse
      */
     public function upload($region, $uploadRequest) {
+        $this->log("INFO", "Proxy set ok=".$this->httpProfile->Proxy);
         if (!$this->ignoreCheck) {
             $this->prefixCheckAndSetDefaultVal($region, $uploadRequest);
         }
+
+        $cosConfig = array();
+        $cloudProfile = null;
+        if (!empty($this->httpProfile) && !empty($this->httpProfile->Proxy)) {
+            $cloudProfile = new ClientProfile();
+            $cloudHttpProfile = new HttpProfile();
+            $cloudHttpProfile->setProxy($this->httpProfile->Proxy);
+            $cloudProfile->setHttpProfile($cloudHttpProfile);
+            $cosConfig['proxy'] = $this->httpProfile->Proxy;
+            $this->log("INFO", "Proxy set ok");
+        }
+
         $credential = new Credential($this->secretId, $this->secretKey, $this->token);
-        $vodClient = new VodClient($credential, $region);
+        $vodClient = new VodClient($credential, $region, $cloudProfile);
+
+        $parsedManifestList = array();
+        $segmentFilePathList = array();
+        if ($this->isManifestMediaType($uploadRequest->MediaType)) {
+            $this->parseManifest($vodClient, $uploadRequest->MediaFilePath, $uploadRequest->MediaType, $parsedManifestList, $segmentFilePathList);
+        }
 
         $this->log("INFO", "Upload Request = ".$uploadRequest->toJsonString());
         $uploadRequestData = $uploadRequest->serialize();
@@ -83,10 +108,9 @@ class VodUploadClient
             $cosCredential['secretId'] = $this->secretId;
             $cosCredential['secretKey'] = $this->secretKey;
         }
-        $cosClient = new Client(array(
-            'region' => $applyUploadResponse->StorageRegion,
-            'credentials' => $cosCredential
-        ));
+        $cosConfig['region'] = $applyUploadResponse->StorageRegion;
+        $cosConfig['credentials'] = $cosCredential;
+        $cosClient = new Client($cosConfig);
 
         if (!empty($uploadRequest->MediaType) && !empty($applyUploadResponse->MediaStoragePath)) {
             $this->uploadCos(
@@ -103,6 +127,21 @@ class VodUploadClient
                 $applyUploadResponse->StorageBucket,
                 $applyUploadResponse->CoverStoragePath
             );
+        }
+
+        if (!empty($segmentFilePathList)) {
+            foreach ($segmentFilePathList as $segmentFilePath) {
+                $storageDir = dirname($applyUploadResponse->MediaStoragePath);
+                $mediaFileDir = dirname($uploadRequest->MediaFilePath);
+                $segmentRelativeFilePath = substr($segmentFilePath, strlen($mediaFileDir));
+                $segmentStoragePath = FileUtil::joinPath($storageDir, $segmentRelativeFilePath);
+                $this->uploadCos(
+                    $cosClient,
+                    $segmentFilePath,
+                    $applyUploadResponse->StorageBucket,
+                    $segmentStoragePath
+                );
+            }
         }
 
         $commitUploadRequest = new CommitUploadRequest();
@@ -173,6 +212,30 @@ class VodUploadClient
     }
 
     /**
+     * 解析索引文件
+     *
+     * @param $vodClient
+     * @param $commitUploadRequest
+     * @return mixed
+     * @throws TencentCloudSDKException
+     */
+    private function parseStreamingManifest($vodClient, $parseStreamingManifestRequest) {
+        $err = null;
+        for ($i = 0; $i < $this->retryTime; $i++) {
+            try {
+                return $parseStreamingManifestResponse = $vodClient->ParseStreamingManifest($parseStreamingManifestRequest);
+            } catch (TencentCloudSDKException $e) {
+                if (empty($e->getRequestId())) {
+                    $err = $e;
+                    continue;
+                }
+                throw $e;
+            }
+        }
+        throw $err;
+    }
+
+    /**
      * 前置检查及设置默认值
      *
      * @param $region
@@ -212,6 +275,53 @@ class VodUploadClient
                 $uploadRequest->CoverType = $coverType;
             }
         }
+    }
+
+    /**
+     * 解析索引文件
+     *
+     * @param $vodClient
+     * @param $manifestFilePath
+     * @param $manifestMediaType
+     * @param $segmentFilePathList
+     * @throws TencentCloudSDKException
+     */
+    private function parseManifest($vodClient, $manifestFilePath, $manifestMediaType, &$parsedManifestList, &$segmentFilePathList) {
+        if (in_array($manifestFilePath, $parsedManifestList)) {
+            return;
+        } else {
+            array_push($parsedManifestList, $manifestFilePath);
+        }
+
+        $manifestContent = file_get_contents($manifestFilePath);
+        $parseStreamingManifestRequest = new ParseStreamingManifestRequest();
+        $parseStreamingManifestRequest->setMediaManifestContent($manifestContent);
+        $parseStreamingManifestRequest->setManifestType($manifestMediaType);
+        $parseStreamingManifestResponse = $this->parseStreamingManifest($vodClient, $parseStreamingManifestRequest);
+
+        if (!empty($parseStreamingManifestResponse->MediaSegmentSet)) {
+            foreach ($parseStreamingManifestResponse->MediaSegmentSet as $segment) {
+                $mediaType = FileUtil::getFileType($segment);
+                $mediaFilePath = FileUtil::joinPath(dirname($manifestFilePath), $segment);
+                if (!file_exists($mediaFilePath)) {
+                    throw new VodClientException("manifest file is invalid");
+                }
+                array_push($segmentFilePathList, $mediaFilePath);
+                if ($this->isManifestMediaType($mediaType)) {
+                    $this->parseManifest($vodClient, $mediaFilePath, $mediaType, $parsedManifestList, $segmentFilePathList);
+                }
+            }
+        }
+    }
+
+    /**
+     * 判断是否为索引文件
+     *
+     * @param $mediaType
+     * @return bool
+     */
+    private function isManifestMediaType($mediaType) {
+        return $mediaType == 'm3u8' || $mediaType == 'mpd';
     }
 
     private function log($level, $message) {
@@ -315,5 +425,21 @@ class VodUploadClient
     public function setLogPath($logPath)
     {
         $this->logPath = $logPath;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getHttpProfile()
+    {
+        return $this->httpProfile;
+    }
+
+    /**
+     * @param mixed $httpProfile
+     */
+    public function setHttpProfile($httpProfile)
+    {
+        $this->httpProfile = $httpProfile;
     }
 }

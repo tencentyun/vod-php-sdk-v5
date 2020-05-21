@@ -9,13 +9,17 @@
 use PHPUnit\Framework\TestCase;
 use Vod\VodUploadClient;
 use Vod\Model\VodUploadRequest;
+use Vod\Model\VodUploadHttpProfile;
 use Vod\Exception\VodClientException;
 use TencentCloud\Common\Exception\TencentCloudSDKException;
 
 class VodUploadClientTest extends TestCase
 {
     private function getVodUploadClient() {
-        $client = new VodUploadClient("your secretId", "your secretKey");
+        $client = new VodUploadClient("Your SecretId", "Your SecretKey");
+        // set proxy if necessary
+        //$uploadHttpProfile = new VodUploadHttpProfile("http://proxy_ip:proxy_port");
+        //$client->setHttpProfile($uploadHttpProfile);
         // set credential token if necessary
         // $client = new VodUploadClient("your secretId", "your secretKey", "your token");
         return $client;
@@ -93,6 +97,22 @@ class VodUploadClientTest extends TestCase
         $req = new VodUploadRequest();
         $req->MediaFilePath = "test/Wildlife.mp4";
         $req->CoverFilePath = "test/Wildlife-Cover.png";
+        $rsp = $client->upload("ap-guangzhou", $req);
+        print_r($rsp);
+    }
+
+    public function testHlsUpload() {
+        $client = $this->getVodUploadClient();
+        $req = new VodUploadRequest();
+        $req->MediaFilePath = "test/hls/prog_index.m3u8";
+        $rsp = $client->upload("ap-guangzhou", $req);
+        print_r($rsp);
+    }
+
+    public function testMasterPlaylistUpload() {
+        $client = $this->getVodUploadClient();
+        $req = new VodUploadRequest();
+        $req->MediaFilePath = "test/hls/bipbopall.m3u8";
         $rsp = $client->upload("ap-guangzhou", $req);
         print_r($rsp);
     }
