@@ -55,4 +55,19 @@ class FileUtil
         }
         return substr($fullFileName, 0, $pos);
     }
+
+    /**
+     * 拼接两个路径
+     *
+     * @return string|string[]|null
+     */
+    public static function joinPath() {
+        $paths = array();
+
+        foreach (func_get_args() as $arg) {
+            if ($arg !== '') { $paths[] = $arg; }
+        }
+
+        return preg_replace('#/+#','/',join('/', $paths));
+    }
 }
