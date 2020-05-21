@@ -23,7 +23,7 @@ VOD PHP SDK 是基于云点播上传功能进行包装的 PHP 版本 SDK，SDK �
 ```json
 {
     "require": {
-        "qcloud/vod-sdk-v5": "v2.4.2"
+        "qcloud/vod-sdk-v5": "v2.4.3"
     }
 }
 ```
