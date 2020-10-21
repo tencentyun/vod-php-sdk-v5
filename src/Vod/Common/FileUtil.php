@@ -9,7 +9,7 @@
 namespace Vod\Common;
 
 /**
- * 文件工具类
+ * File tool class
  *
  * Class FileUtil
  * @package Vod\Common
@@ -17,7 +17,7 @@ namespace Vod\Common;
 class FileUtil
 {
     /**
-     * 获取文件类型
+     * Get file type
      *
      * @param $filePath
      * @return mixed|string
@@ -37,7 +37,7 @@ class FileUtil
     }
 
     /**
-     * 获取文件名(不包含后缀)
+     * Get filename (excluding file extension)
      *
      * @param $filePath
      * @return bool|mixed|string
@@ -57,17 +57,20 @@ class FileUtil
     }
 
     /**
-     * 拼接两个路径
+     * Splice two paths
      *
      * @return string|string[]|null
      */
-    public static function joinPath() {
+    public static function joinPath()
+    {
         $paths = array();
 
         foreach (func_get_args() as $arg) {
-            if ($arg !== '') { $paths[] = $arg; }
+            if ($arg !== '') {
+                $paths[] = $arg;
+            }
         }
 
-        return preg_replace('#/+#','/',join('/', $paths));
+        return preg_replace('#/+#', '/', join('/', $paths));
     }
 }
