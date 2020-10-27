@@ -26,7 +26,7 @@ use \DateTime;
 error_reporting(E_ALL ^ E_NOTICE);
 
 /**
- * 点播上传客户端
+ * VOD upload client
  *
  * Class VodUploadClient
  * @package Vod
@@ -59,7 +59,7 @@ class VodUploadClient
     }
 
     /**
-     * 上传
+     * Upload
      *
      * @param $region
      * @param $uploadRequest
@@ -162,7 +162,7 @@ class VodUploadClient
     }
 
     /**
-     * 申请上传
+     * Apply for upload
      *
      * @param $vodClient
      * @param $uploadRequest
@@ -187,7 +187,7 @@ class VodUploadClient
     }
 
     /**
-     * 确认上传
+     * Confirm upload
      *
      * @param $vodClient
      * @param $commitUploadRequest
@@ -212,7 +212,7 @@ class VodUploadClient
     }
 
     /**
-     * 解析索引文件
+     * Parse index file
      *
      * @param $vodClient
      * @param $commitUploadRequest
@@ -236,7 +236,7 @@ class VodUploadClient
     }
 
     /**
-     * 前置检查及设置默认值
+     * Pre-check and set default values
      *
      * @param $region
      * @param $uploadRequest
@@ -278,7 +278,7 @@ class VodUploadClient
     }
 
     /**
-     * 解析索引文件
+     * Parse index file
      *
      * @param $vodClient
      * @param $manifestFilePath
@@ -315,7 +315,7 @@ class VodUploadClient
     }
 
     /**
-     * 判断是否为索引文件
+     *  Determine whether it is an index file
      *
      * @param $mediaType
      * @return bool
