@@ -14,8 +14,8 @@
     },
     "license": "MIT",
     "require": {
-        "php": ">=5.6.33",
-        "qcloud/cos-sdk-v5": "^v2.0.0",
+        "php": ">=7.3",
+        "qcloud/cos-sdk-v5": "dev-guzzle7",
         "tencentcloud/tencentcloud-sdk-php": "^3.0.166"
     },
     "require-dev": {
