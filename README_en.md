@@ -23,7 +23,7 @@ We recommend you use Composer to install the SDK:
 ```json
 {
     "require": {
-        "qcloud/vod-sdk-v5": "v2.4.3"
+        "qcloud/vod-sdk-v5": "v2.4.4"
     }
 }
 ```
