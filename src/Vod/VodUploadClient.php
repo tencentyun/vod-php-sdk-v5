@@ -7,6 +7,7 @@
  */
 
 namespace Vod;
+
 use Qcloud\Cos\Client;
 use TencentCloud\Common\Credential;
 use TencentCloud\Common\Exception\TencentCloudSDKException;
@@ -65,8 +66,8 @@ class VodUploadClient
      * @param $uploadRequest
      * @return VodUploadResponse
      */
-    public function upload($region, $uploadRequest) {
-        $this->log("INFO", "Proxy set ok=".$this->httpProfile->Proxy);
+    public function upload($region, $uploadRequest)
+    {
         if (!$this->ignoreCheck) {
             $this->prefixCheckAndSetDefaultVal($region, $uploadRequest);
         }
@@ -157,7 +158,8 @@ class VodUploadClient
         return $uploadResponse;
     }
 
-    private function uploadCos($cosClient, $localPath, $bucket, $cosPath) {
+    private function uploadCos($cosClient, $localPath, $bucket, $cosPath)
+    {
         $cosClient->Upload($bucket, $cosPath, fopen($localPath, 'rb'));
     }
 
@@ -169,7 +171,8 @@ class VodUploadClient
      * @return mixed
      * @throws TencentCloudSDKException
      */
-    private function applyUpload($vodClient, $uploadRequest) {
+    private function applyUpload($vodClient, $uploadRequest)
+    {
         $err = null;
         for ($i = 0; $i < $this->retryTime; $i++) {
             try {
@@ -194,7 +197,8 @@ class VodUploadClient
      * @return mixed
      * @throws TencentCloudSDKException
      */
-    private function commitUpload($vodClient, $commitUploadRequest) {
+    private function commitUpload($vodClient, $commitUploadRequest)
+    {
         $err = null;
         for ($i = 0; $i < $this->retryTime; $i++) {
             try {
@@ -219,7 +223,8 @@ class VodUploadClient
      * @return mixed
      * @throws TencentCloudSDKException
      */
-    private function parseStreamingManifest($vodClient, $parseStreamingManifestRequest) {
+    private function parseStreamingManifest($vodClient, $parseStreamingManifestRequest)
+    {
         $err = null;
         for ($i = 0; $i < $this->retryTime; $i++) {
             try {
@@ -242,7 +247,8 @@ class VodUploadClient
      * @param $uploadRequest
      * @throws VodClientException
      */
-    private function prefixCheckAndSetDefaultVal($region, VodUploadRequest $uploadRequest) {
+    private function prefixCheckAndSetDefaultVal($region, VodUploadRequest $uploadRequest)
+    {
         if (empty($region)) {
             throw new VodClientException("lack region");
         }
@@ -286,7 +292,8 @@ class VodUploadClient
      * @param $segmentFilePathList
      * @throws TencentCloudSDKException
      */
-    private function parseManifest($vodClient, $manifestFilePath, $manifestMediaType, &$parsedManifestList, &$segmentFilePathList) {
+    private function parseManifest($vodClient, $manifestFilePath, $manifestMediaType, &$parsedManifestList, &$segmentFilePathList)
+    {
         if (in_array($manifestFilePath, $parsedManifestList)) {
             return;
         } else {
@@ -320,13 +327,15 @@ class VodUploadClient
      * @param $mediaType
      * @return bool
      */
-    private function isManifestMediaType($mediaType) {
+    private function isManifestMediaType($mediaType)
+    {
         return $mediaType == 'm3u8' || $mediaType == 'mpd';
     }
 
-    private function log($level, $message) {
+    private function log($level, $message)
+    {
         $t = microtime(true);
-        $micro = sprintf("%06d",($t - floor($t)) * 1000000);
+        $micro = sprintf("%06d", ($t - floor($t)) * 1000000);
         $d = new DateTime(date('Y-m-d H:i:s.' . $micro, $t));
         error_log('[' . $d->format("Y-m-d H:i:s.u") . '][' . $level . ']' . $message . "\n", 3, $this->logPath);
     }
