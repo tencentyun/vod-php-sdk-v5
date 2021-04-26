@@ -48,14 +48,14 @@ class VodUploadClient
 
     private $httpProfile;
 
-    public function __construct($secretId, $secretKey, $token = null)
+    public function __construct($secretId, $secretKey, $token = null, $logPath = './vod_upload.log')
     {
         $this->secretId = $secretId;
         $this->secretKey = $secretKey;
         $this->token = $token;
         $this->ignoreCheck = false;
         $this->retryTime = 3;
-        $this->logPath = './vod_upload.log';
+        $this->logPath = $logPath;
         date_default_timezone_set('PRC');
     }
 
